@@ -44,34 +44,34 @@ The logic is that if a day in any year is holiday, that day in other year will b
 -- Filling null values of Blast_day_type columns
 
 select Date, 
-	   format(date, 'MM-dd') as monthday, 
-	   DATENAME(dw,date),DATEPART(weekday,date) as DoW, 
-	   Blast_Day_Type,
-	   Case when format(date, 'MM-dd') in (select distinct format(date, 'MM-dd')
-												  from PakistanSuicideAttacks
-												  where Blast_Day_Type = 'Holiday')
-			then 'Holiday'
-			when DATEPART(weekday,date) % 7 in (1,0)
-			then 'Weekend'
-			else 'Working Day' end as modified_day_type
+       format(date, 'MM-dd') as monthday, 
+       DATENAME(dw,date),DATEPART(weekday,date) as DoW, 
+       Blast_Day_Type,
+       Case when format(date, 'MM-dd') in (select distinct format(date, 'MM-dd')
+	  				   from PakistanSuicideAttacks
+					   where Blast_Day_Type = 'Holiday')
+		 then 'Holiday'
+		 when DATEPART(weekday,date) % 7 in (1,0)
+		 then 'Weekend'
+		 else 'Working Day' end as modified_day_type
 from PakistanSuicideAttacks
 where Blast_Day_Type is null
 order by monthday;
 
 UPDATE PakistanSuicideAttacks
-SET Blast_Day_Type = Case when format(date, 'MM-dd') in (select distinct format(date, 'MM-dd')
-												  from PakistanSuicideAttacks
-												  where Blast_Day_Type = 'Holiday')
-				          then 'Holiday' 
-						  when DATEPART(weekday,date) % 7 in (1,0)
-						  then 'Weekend'
-						  else 'Working Day' end 
-where Blast_Day_Type is null;
+SET Blast_Day_Type = 
+    Case when format(date, 'MM-dd') in (select distinct format(date, 'MM-dd')
+					from PakistanSuicideAttacks
+					where Blast_Day_Type = 'Holiday')		 	  then 'Holiday' 
+	 when DATEPART(weekday,date) % 7 in (1,0)
+	 then 'Weekend'
+	 else 'Working Day' end 
+    where Blast_Day_Type is null;
 ``` 
 ![blast_day_type column](https://github.com/thaianhnguyen/Data-Cleaning-with-SQL/blob/main/Images/Screenshot_2.jpg)
 
 <a name="data-entry"/> </br>
-## Standardize the inconsistent data entry. </br>
+## Standardize the inconsistent data entry. 
 <a name="city"/> </br>
 ### City Column
 There are several columns in this dataset that has the problem of inconsistent data entry. The most complex one is the City Column. </br>
@@ -95,20 +95,21 @@ and t1.city <> t2.city;
 
 ---- FIX THE PROBLEMS
 SELECT distinct city, 
-				[dbo].[InitCap](CASE WHEN City like 'D. %I%' then 'D.I Khan'
-									when City like  'Kurram%' then 'Kuram Agency'
-									when City like '%Charsadda%' then 'Charsadda'
-									when City like '%,%' then TRIM(SUBSTRING(city,charindex(',',City)+1,len(City)))
-									else City end)
-		from PakistanSuicideAttacks;
+       [dbo].[InitCap](CASE WHEN City like 'D. %I%' then 'D.I Khan'
+			    when City like  'Kurram%' then 'Kuram Agency'
+			    when City like '%Charsadda%' then 'Charsadda'
+			    when City like '%,%' then TRIM(SUBSTRING(city,charindex(',',City)+1,len(City)))
+			    else City end)
+from PakistanSuicideAttacks;
 
 
 UPDATE PakistanSuicideAttacks
-SET city = [dbo].[InitCap](CASE WHEN City like 'D. %I%' then 'D.I Khan'
-								when City like  'Kurram%' then 'Kuram Agency'
-								when City like '%Charsadda%' then 'Charsadda'
-								when City like '%,%' then TRIM(SUBSTRING(city,charindex(',',City)+1,len(City)))
-								else City end);
+SET city =
+    [dbo].[InitCap](CASE WHEN City like 'D. %I%' then 'D.I Khan'
+   			 when City like  'Kurram%' then 'Kuram Agency'
+			 when City like '%Charsadda%' then 'Charsadda'
+			 when City like '%,%' then TRIM(SUBSTRING(city,charindex(',',City)+1,len(City)))
+			 else City end);
 ```
 ![City column](https://github.com/thaianhnguyen/Data-Cleaning-with-SQL/blob/main/Images/Screenshot_3.jpg)
 
@@ -122,31 +123,32 @@ from PakistanSuicideAttacks),
 cte2 as(
 select *, row_number() over( partition by city order by city) as rn
 from cte)
-select * from cte2 where city in (select city from cte2 where rn >1)
+select * from cte2 
+where city in (select city from cte2 where rn >1)
 ```
-![one city two provinces](https://github.com/thaianhnguyen/Data-Cleaning-with-SQL/blob/main/Images/Screenshot_4.jpg)
+![one city two provinces](https://github.com/thaianhnguyen/Data-Cleaning-with-SQL/blob/main/Images/Screenshot_4.jpg) </br>
 After researching, I found out that this problem is mainly due to the fact that KPK province merged with FATA province. And for Balochistan/Baluchistan, they are just two different ways of spelling for the same province. There is one case of incorrect date input though, which is D.G Khan.
 ```sql
 ---- Balochistan vs. Baluchistan; D.G Khan - (Punjab*,KPK) ; FATA - KPK (FATA merged with KPK)
 select distinct city, province,
-				Case when Province = 'Baluchistan' then 'Balochistan'
-					when city ='D.G Khan' then 'Punjab'
-					when Province = 'FATA' then 'KPK'
-					else Province end as mod_province
+       Case when Province = 'Baluchistan' then 'Balochistan'
+       when city ='D.G Khan' then 'Punjab'
+       when Province = 'FATA' then 'KPK'
+       else Province end as mod_province
 from PakistanSuicideAttacks;
 
 Update PakistanSuicideAttacks
 SET Province = Case when Province = 'Baluchistan' then 'Balochistan'
-					when city ='D.G Khan' then 'Punjab'
-					when Province = 'FATA' then 'KPK'
-					else Province end;
+ 		    when city ='D.G Khan' then 'Punjab'
+		    when Province = 'FATA' then 'KPK'
+		    else Province end;
 ```
 <a name="other"/> </br>
 ### Standardize other columns
 ```sql
 ---- Standardize case in open_closed_space column
 Select open_closed_space, 
-	   upper(left(open_closed_space, 1))+SUBSTRING(open_closed_space,2,len(open_closed_Space))
+       upper(left(open_closed_space, 1))+SUBSTRING(open_closed_space,2,len(open_closed_Space))
 from PakistanSuicideAttacks;
 
 UPDATE PakistanSuicideAttacks
@@ -154,7 +156,7 @@ SET Open_Closed_Space = upper(left(open_closed_space, 1))+SUBSTRING(open_closed_
 
 ---- convert 'NA' in targeted_sect_if_any column -> NULL
 select targeted_sect_if_any,
-	   nullif(targeted_sect_if_any,'NA')
+       nullif(targeted_sect_if_any,'NA')
 from PakistanSuicideAttacks;
 
 UPDATE PakistanSuicideAttacks
@@ -181,7 +183,7 @@ The result shows that although there are 6 duplicate records based on selected c
 ---- check for duplicate records with columns that are going to be use
 with RowNumCTE as
 (select *, row_number () over (partition by date, 
-											blast_Day_type,
+    					    blast_Day_type,
                                             city,
                                             Province,
                                             Latitude,
