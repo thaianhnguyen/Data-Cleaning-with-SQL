@@ -68,7 +68,6 @@ SET Blast_Day_Type = Case when format(date, 'MM-dd') in (select distinct format(
 						  else 'Working Day' end 
 where Blast_Day_Type is null;
 ``` 
-</br>
 ![blast_day_type column](https://github.com/thaianhnguyen/Data-Cleaning-with-SQL/blob/main/Images/Screenshot_2.jpg)
 
 <a name="data-entry"/> </br>
@@ -111,7 +110,6 @@ SET city = [dbo].[InitCap](CASE WHEN City like 'D. %I%' then 'D.I Khan'
 								when City like '%,%' then TRIM(SUBSTRING(city,charindex(',',City)+1,len(City)))
 								else City end);
 ```
-</br>
 ![City column](https://github.com/thaianhnguyen/Data-Cleaning-with-SQL/blob/main/Images/Screenshot_3.jpg)
 
 <a name="province"/> </br>
@@ -162,14 +160,13 @@ from PakistanSuicideAttacks;
 UPDATE PakistanSuicideAttacks
 SET Targeted_Sect_if_any = nullif(targeted_sect_if_any,'NA');
 ``` 
-</br>
+
 <a name="inaccurate"/> </br>
 ## Inaccurate/ inappropriate data
 Some data was found inappropriate.
 * Value in _Killed_min_ is greater than that of _Killed_max_ for 2 records
 * There is one 'Open/Closed' value in Open_Closed_Space
-</br> 
-![inappropriate data](https://github.com/thaianhnguyen/Data-Cleaning-with-SQL/blob/main/Images/Screenshot_5.jpg)
+![inappropriate data](https://github.com/thaianhnguyen/Data-Cleaning-with-SQL/blob/main/Images/Screenshot_5.jpg) </br>
 Because there are only 3 records with inappropriate data, I will drop them.
 ```sql
 ---- drop out of range/inappropriate records
