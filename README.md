@@ -1,5 +1,5 @@
 # Data cleaning with SQL
-[__My SQL queries script here__]() </br>
+[__My SQL queries script here__](https://github.com/thaianhnguyen/Data-Cleaning-with-SQL/blob/main/pakistan%20bombing%20SQL%20queries.sql) </br>
 In this project, I will be cleaning data concerning Pakistan's suicidal bombing from 1997-2017. The desired outcome would be to provide a clean dataset ready for the analysis of the pattern of bombings in terms of day type, location, target as well as deadliness. </br>
 The dataset was collected from [__here.__](https://www.kaggle.com/datasets/zusmani/pakistansuicideattacks?datasetId=719&sortBy=voteCount)
 
@@ -201,5 +201,5 @@ The problem can be dealt with as follows:</br>
 However, due to the scope of the project, I would not be able to verify those duplicate values. Therefore, it is such regret not to provide the final cleaned data. </br>
 After dropping unused columns, the final data has 493 records and 17 columns.
 
-You can visit [__My SQL queries script here.__]() </br>
+You can visit [__My SQL queries script here.__](https://github.com/thaianhnguyen/Data-Cleaning-with-SQL/blob/main/pakistan%20bombing%20SQL%20queries.sql) </br>
  
